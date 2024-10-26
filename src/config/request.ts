@@ -5,7 +5,13 @@ const httpInstance = axios.create({
   timeout: 20000,
   headers: {
     "Content-Type": "application/json",
-    // "Access-Control-Allow-Origin": "*",
+  },
+});
+export const httpInstanceNoAuth = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 20000,
+  headers: {
+    "Content-Type": "application/json",
   },
 });
 
@@ -18,7 +24,9 @@ export const httpMultipartInstance = axios.create({
 });
 
 httpInstance.interceptors.request.use(function (config) {
+  const token = localStorage.getItem("accessToken");
   config.headers["Content-Type"] = "application/json";
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -28,6 +36,16 @@ httpInstance.interceptors.response.use(function (response) {
   return response;
 });
 
+httpInstanceNoAuth.interceptors.request.use(function (config) {
+  config.headers["Content-Type"] = "application/json";
+  return config;
+});
+
+httpInstanceNoAuth.interceptors.response.use(function (response) {
+  if (response.status === 200) return response;
+  console.log(response);
+  return response;
+});
 httpMultipartInstance.interceptors.request.use(function (config) {
   const token = localStorage.getItem("accessToken");
   const companyCode = localStorage.getItem("companyCode");

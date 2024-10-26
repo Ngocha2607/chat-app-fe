@@ -3,4 +3,7 @@ export const Endpoints = {
     REGISTER: "/auth/register",
     LOGIN: "/auth/login",
   },
+  USER: {
+    PROFILE: "/user/profile",
+  },
 };
