@@ -5,4 +5,7 @@ export const Endpoints = {
     PROFILE: "/auth/profile",
     UPDATE: "/auth/update",
   },
+  CHAT: {
+    CREATE_CHAT: "chats",
+  },
 };
