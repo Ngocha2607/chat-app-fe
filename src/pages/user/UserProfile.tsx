@@ -1,22 +1,54 @@
 "use client";
-import { UserProfile } from "@/models/user";
+import { RegisterUser } from "@/models/auth";
+import { UserProfile } from "@/models/auth";
 import authService from "@/services/authService";
-import userService from "@/services/userService";
+import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
-
+import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
+const formSchema = z.object({
+  username: z.string({
+    required_error: "Required Field",
+  }),
+  password: z.string({
+    required_error: "Required Field",
+  }),
+});
 const UserProfilePage = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-
+  const [isEdit, setIsEdit] = useState(false);
+  const form = useForm<UserProfile>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {},
+  });
   const fetchProfile = async () => {
-    const res = await userService.getProfile();
+    const res = await authService.getUserProfile();
     if (res?.status === 200) {
       setProfile(res.data);
+      form.reset({
+        username: res.data.username,
+        password: "",
+      });
     }
   };
   useEffect(() => {
     fetchProfile();
   }, []);
+  const onSubmit: SubmitHandler<UserProfile> = async (data) => {
+    try {
+      const response = await authService.update(data);
 
+      if (response?.status === 200) {
+        setIsEdit(false);
+        fetchProfile();
+      } else {
+      }
+    } catch (error: any) {}
+  };
+
+  const onError: SubmitErrorHandler<UserProfile> = (e) => {
+    console.log(e);
+  };
   return (
     <section className="w-full overflow-hidden dark:bg-gray-900">
       <div className="flex flex-col">
@@ -46,85 +78,141 @@ const UserProfilePage = () => {
             eligendi odit, dolore similique fugiat dolor, doloremque eveniet.
             Odit, consequatur. Ratione voluptate exercitationem hic eligendi
             vitae animi nam in, est earum culpa illum aliquam.
-          </p>
-
+          </p>{" "}
           <div className="w-full my-auto py-6 flex flex-col justify-center gap-2">
-            <div className="w-full flex sm:flex-row xs:flex-col gap-2 justify-center">
-              <div className="w-full">
-                <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
-                  <div className="flex flex-col pb-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Username
-                    </dt>
-                    <dd className="text-lg font-semibold">
-                      {profile?.username}
-                    </dd>
+            <form onSubmit={form.handleSubmit(onSubmit, onError)}>
+              {isEdit ? (
+                <div className="w-full flex sm:flex-row xs:flex-col gap-2 justify-center">
+                  <div className="w-full">
+                    <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+                      <div className="flex flex-col pb-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Username
+                        </dt>
+                        <dd className="text-lg font-semibold">
+                          <input
+                            {...form.register("username")}
+                            className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            type="email"
+                          />
+                        </dd>
+                      </div>
+                      <div className="flex flex-col pb-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Password
+                        </dt>
+                        <dd className="text-lg font-semibold">
+                          <input
+                            {...form.register("password")}
+                            className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            type="password"
+                          />
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
-                  <div className="flex flex-col pb-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      First Name
-                    </dt>
-                    <dd className="text-lg font-semibold">Samuel</dd>
+                </div>
+              ) : (
+                <div className="w-full flex sm:flex-row xs:flex-col gap-2 justify-center">
+                  <div className="w-full">
+                    <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+                      <div className="flex flex-col pb-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Username
+                        </dt>
+                        <dd className="text-lg font-semibold">
+                          {profile?.username}
+                        </dd>
+                      </div>
+                      <div className="flex flex-col pb-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          First Name
+                        </dt>
+                        <dd className="text-lg font-semibold">Samuel</dd>
+                      </div>
+                      <div className="flex flex-col py-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Last Name
+                        </dt>
+                        <dd className="text-lg font-semibold">Abera</dd>
+                      </div>
+                      <div className="flex flex-col py-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Date Of Birth
+                        </dt>
+                        <dd className="text-lg font-semibold">21/02/1997</dd>
+                      </div>
+                      <div className="flex flex-col py-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Gender
+                        </dt>
+                        <dd className="text-lg font-semibold">Male</dd>
+                      </div>
+                    </dl>
                   </div>
-                  <div className="flex flex-col py-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Last Name
-                    </dt>
-                    <dd className="text-lg font-semibold">Abera</dd>
-                  </div>
-                  <div className="flex flex-col py-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Date Of Birth
-                    </dt>
-                    <dd className="text-lg font-semibold">21/02/1997</dd>
-                  </div>
-                  <div className="flex flex-col py-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Gender
-                    </dt>
-                    <dd className="text-lg font-semibold">Male</dd>
-                  </div>
-                </dl>
-              </div>
-              <div className="w-full">
-                <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
-                  <div className="flex flex-col pb-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Location
-                    </dt>
-                    <dd className="text-lg font-semibold">
-                      Ethiopia, Addis Ababa
-                    </dd>
-                  </div>
+                  <div className="w-full">
+                    <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+                      <div className="flex flex-col pb-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Location
+                        </dt>
+                        <dd className="text-lg font-semibold">
+                          Ethiopia, Addis Ababa
+                        </dd>
+                      </div>
 
-                  <div className="flex flex-col pt-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Phone Number
-                    </dt>
-                    <dd className="text-lg font-semibold">+251913****30</dd>
-                  </div>
-                  <div className="flex flex-col pt-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Email
-                    </dt>
-                    <dd className="text-lg font-semibold">
-                      samuelabera87@gmail.com
-                    </dd>
-                  </div>
+                      <div className="flex flex-col pt-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Phone Number
+                        </dt>
+                        <dd className="text-lg font-semibold">+251913****30</dd>
+                      </div>
+                      <div className="flex flex-col pt-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Email
+                        </dt>
+                        <dd className="text-lg font-semibold">
+                          samuelabera87@gmail.com
+                        </dd>
+                      </div>
 
-                  <div className="flex flex-col pt-3">
-                    <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
-                      Website
-                    </dt>
-                    <dd className="text-lg font-semibold hover:text-blue-500">
-                      <a href="https://techakim.com">https://www.teclick.com</a>
-                    </dd>
+                      <div className="flex flex-col pt-3">
+                        <dt className="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+                          Website
+                        </dt>
+                        <dd className="text-lg font-semibold hover:text-blue-500">
+                          <a href="https://techakim.com">
+                            https://www.teclick.com
+                          </a>
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
-                </dl>
+                </div>
+              )}
+              <div className="flex flex-col pb-3">
+                {isEdit && (
+                  <button
+                    type="submit"
+                    className="bg-gray-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-gray-600"
+                  >
+                    Save
+                  </button>
+                )}
               </div>
+            </form>{" "}
+            <div className="flex flex-col pb-3">
+              {!isEdit && (
+                <button
+                  type="button"
+                  onClick={() => setIsEdit(true)}
+                  className="bg-gray-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-gray-600"
+                >
+                  Edit Profile
+                </button>
+              )}
             </div>
           </div>
-
           <div className="fixed right-2 bottom-20 flex flex-col rounded-sm bg-gray-200 text-gray-500 dark:bg-gray-200/80 dark:text-gray-700 hover:text-gray-600 hover:dark:text-gray-400">
             <a href="https://www.linkedin.com/in/samuel-abera-6593a2209/">
               <div className="p-2 hover:text-primary hover:dark:text-primary">
