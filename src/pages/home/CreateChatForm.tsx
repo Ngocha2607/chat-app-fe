@@ -2,7 +2,7 @@
 import chatService from "@/services/chatService";
 import { useState } from "react";
 
-export default function CreateChatPage() {
+export default function CreateChatForm() {
   const [participants, setParticipants] = useState("");
   const [message, setMessage] = useState("");
 

@@ -7,5 +7,7 @@ export const Endpoints = {
   },
   CHAT: {
     CREATE_CHAT: "chats",
+    LIST_CHATS: "chats",
+    DETAIL_CHAT: "chats",
   },
 };

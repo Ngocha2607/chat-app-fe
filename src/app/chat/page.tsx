@@ -1,10 +1,10 @@
-import CreateChatPage from "@/pages/chat/CreateChatPage";
+import CreateChatForm from "@/pages/home/CreateChatForm";
 import React from "react";
 
 const ChatPage = () => {
   return (
     <div>
-      <CreateChatPage />
+      <CreateChatForm />
     </div>
   );
 };
