@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import CreateChatForm from "./CreateChatForm";
 import chatService from "@/services/chatService";
+import authService from "@/services/authService";
 
 const Homepage = () => {
   const [chats, setChats] = useState([]);
@@ -11,7 +12,7 @@ const Homepage = () => {
     if (res?.status === 200) {
       setChats(res.data);
     } else {
-      setChats([]);
+      authService.logout();
     }
   };
   useEffect(() => {

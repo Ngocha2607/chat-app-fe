@@ -25,6 +25,16 @@ const chatService = {
       return error.response;
     }
   },
+  sendMessage: async (payload: { chatId: string; content: string }) => {
+    try {
+      return await httpInstance.post(
+        `${Endpoints.CHAT.DETAIL_CHAT}/${payload.chatId}/${Endpoints.CHAT.MESSAGE.SEND}`,
+        payload
+      );
+    } catch (error: any) {
+      return error.response;
+    }
+  },
 };
 
 export default chatService;

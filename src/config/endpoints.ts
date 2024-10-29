@@ -9,5 +9,12 @@ export const Endpoints = {
     CREATE_CHAT: "chats",
     LIST_CHATS: "chats",
     DETAIL_CHAT: "chats",
+    MESSAGE: {
+      SEND: "messages",
+    },
+  },
+
+  MESSAGE: {
+    SEND: "messages",
   },
 };

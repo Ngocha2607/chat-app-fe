@@ -1,10 +1,12 @@
 "use client";
+import authService from "@/services/authService";
 import chatService from "@/services/chatService";
 import { useEffect, useState } from "react";
 
 export default function ChatDetails({ chatId }: { chatId: string }) {
   const [chat, setChat] = useState<any>(null);
   const [error, setError] = useState("");
+  const [messageContent, setMessageContent] = useState("");
 
   useEffect(() => {
     const fetchChatDetails = async () => {
@@ -12,12 +14,22 @@ export default function ChatDetails({ chatId }: { chatId: string }) {
       if (res?.status === 200) {
         setChat(res.data);
       } else {
-        setError("Failed to fetch chat details");
+        authService.logout();
       }
     };
 
     fetchChatDetails();
   }, [chatId]);
+  const handleSendMessage = async (e: any) => {
+    e.preventDefault();
+
+    const data = await chatService.sendMessage({
+      chatId,
+      content: messageContent,
+    });
+    setChat(data);
+    setMessageContent("");
+  };
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
@@ -46,6 +58,14 @@ export default function ChatDetails({ chatId }: { chatId: string }) {
               </li>
             ))}
           </ul>
+          <input
+            type="text"
+            value={messageContent}
+            onChange={(e) => setMessageContent(e.target.value)}
+            className="w-full px-3 py-2 border rounded mb-2"
+            placeholder="Type your message..."
+          />
+          <button onClick={handleSendMessage}>Send</button>
         </div>
       ) : (
         <p>Loading...</p>
