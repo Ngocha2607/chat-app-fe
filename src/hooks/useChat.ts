@@ -1,43 +1,57 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import {
-  DefaultEventsMap,
-  EventNames,
-  EventParams,
-  EventsMap,
-  Emitter,
-} from "@socket.io/component-emitter";
+
+// Define types for our messages and chat data
+interface Message {
+  userId: string;
+  content: string;
+  timestamp?: Date;
+}
+
+interface ChatMessage {
+  chatId: string;
+  userId: string;
+  content: string;
+}
 
 const useChat = (chatId: string) => {
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState("");
-  const [socket, setSocket] = useState<Socket<
-    DefaultEventsMap,
-    DefaultEventsMap
-  > | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [message, setMessage] = useState<string>("");
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
+    // Create socket connection
+    const newSocket: Socket = io("http://localhost:3000");
     setSocket(newSocket);
+
+    // Join the chat room
     newSocket.emit("joinChat", chatId);
 
-    newSocket.on("receiveMessage", (data) => {
+    // Listen for incoming messages
+    newSocket.on("receiveMessage", (data: { messages: Message[] }) => {
       setMessages(data.messages);
-      if(onNew)
     });
 
-    // return () => newSocket.disconnect();
+    // Cleanup function
+    return () => {
+      newSocket.disconnect();
+    };
   }, [chatId]);
 
-  const sendMessage = (userId: string, content: string) => {
-    socket?.emit("sendMessage", {
-      chatId,
-      userId,
-      content,
-    });
-    setMessage("");
+  const sendMessage = (userId: string, content: string): void => {
+    if (socket) {
+      const messageData: ChatMessage = {
+        chatId,
+        userId,
+        content,
+      };
+      socket.emit("sendMessage", messageData);
+      setMessage("");
+    }
   };
+
   return {
     messages,
     message,
@@ -45,4 +59,5 @@ const useChat = (chatId: string) => {
     sendMessage,
   };
 };
+
 export default useChat;
