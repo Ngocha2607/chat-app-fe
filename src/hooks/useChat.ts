@@ -23,7 +23,7 @@ const useChat = (chatId: string) => {
 
   useEffect(() => {
     // Create socket connection
-    const newSocket: Socket = io("http://localhost:3000");
+    const newSocket: Socket = io("http://localhost:8000");
     setSocket(newSocket);
 
     // Join the chat room
@@ -36,7 +36,7 @@ const useChat = (chatId: string) => {
 
     // Cleanup function
     return () => {
-      newSocket.disconnect();
+      newSocket.close();
     };
   }, [chatId]);
 

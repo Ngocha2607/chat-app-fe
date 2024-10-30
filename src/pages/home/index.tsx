@@ -33,7 +33,7 @@ const Homepage = () => {
                   className="mb-2 p-2 border rounded"
                 >
                   {chat.participants
-                    .map((participant: any) => participant)
+                    .map((participant: any) => participant.username)
                     .join(", ")}
                 </a>
               ))}

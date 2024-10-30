@@ -15,6 +15,7 @@ export default function ChatDetails({
   const [chat, setChat] = useState<any>(null);
   const router = useRouter();
   const { messages, message, setMessage, sendMessage } = useChat(chatId);
+
   const [error, setError] = useState("");
   const [messageContent, setMessageContent] = useState("");
 
@@ -32,12 +33,14 @@ export default function ChatDetails({
   }, [chatId]);
   const handleSendMessage = async (e: any) => {
     e.preventDefault();
-    sendMessage(userId, messageContent);
+    sendMessage(userId, message);
   };
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
+
+  console.log(messages);
 
   return (
     <div className="max-w-md mx-auto mt-10">
@@ -58,8 +61,8 @@ export default function ChatDetails({
           </ul>
           <input
             type="text"
-            value={messageContent}
-            onChange={(e) => setMessageContent(e.target.value)}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             className="w-full px-3 py-2 border rounded mb-2"
             placeholder="Type your message..."
           />
