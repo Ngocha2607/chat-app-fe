@@ -1,3 +1,4 @@
+import authService from "@/services/authService";
 import axios from "axios";
 
 const httpInstance = axios.create({
@@ -32,7 +33,7 @@ httpInstance.interceptors.request.use(function (config) {
 
 httpInstance.interceptors.response.use(function (response) {
   if (response.status === 200) return response;
-  console.log(response);
+  if (response.status === 401) authService.logout();
   return response;
 });
 

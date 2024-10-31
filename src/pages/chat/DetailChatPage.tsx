@@ -5,13 +5,7 @@ import chatService from "@/services/chatService";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function ChatDetails({
-  chatId,
-  userId,
-}: {
-  chatId: string;
-  userId: string;
-}) {
+export default function ChatDetails({ chatId }: { chatId: string }) {
   const [chat, setChat] = useState<any>(null);
   const router = useRouter();
   const { messages, message, setMessage, sendMessage } = useChat(chatId);
@@ -33,7 +27,7 @@ export default function ChatDetails({
   }, [chatId]);
   const handleSendMessage = async (e: any) => {
     e.preventDefault();
-    sendMessage(userId, message);
+    sendMessage(message);
   };
 
   if (error) {

@@ -1,5 +1,7 @@
 "use client";
 
+import { AuthUser } from "@/models/user";
+import chatService from "@/services/chatService";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -17,13 +19,25 @@ interface ChatMessage {
 }
 
 const useChat = (chatId: string) => {
+  const user: AuthUser = JSON.parse(localStorage.getItem("user")!);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null);
 
+  const fetchMessages = async () => {
+    const response = await chatService.getDetailChats(chatId);
+    if (response?.status === 200) {
+      setMessages(response.data.messages);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
   useEffect(() => {
     // Create socket connection
-    const newSocket: Socket = io("http://localhost:8000");
+    const newSocket: Socket = io(process.env.NEXT_PUBLIC_API_URL);
     setSocket(newSocket);
 
     // Join the chat room
@@ -31,6 +45,8 @@ const useChat = (chatId: string) => {
 
     // Listen for incoming messages
     newSocket.on("receiveMessage", (data: { messages: Message[] }) => {
+      console.log(data);
+
       setMessages(data.messages);
     });
 
@@ -40,11 +56,11 @@ const useChat = (chatId: string) => {
     };
   }, [chatId]);
 
-  const sendMessage = (userId: string, content: string): void => {
+  const sendMessage = (content: string): void => {
     if (socket) {
       const messageData: ChatMessage = {
         chatId,
-        userId,
+        userId: user._id,
         content,
       };
       socket.emit("sendMessage", messageData);

@@ -35,6 +35,7 @@ const LoginForm = () => {
       if (response?.status === 201) {
         setMessage("User login successfully");
         localStorage.setItem("accessToken", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         router.push("/");
       } else {
         setMessage(`User login failed`);
