@@ -1,4 +1,4 @@
-import CreateChatForm from "@/pages/home/CreateChatForm";
+import CreateChatForm from "@/page/home/CreateChatForm";
 import React from "react";
 
 const ChatPage = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import UserProfilePage from "@/pages/user/UserProfile";
+import UserProfilePage from "@/page/user/UserProfile";
 
 export default function ProfilePage() {
   return (

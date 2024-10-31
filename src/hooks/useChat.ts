@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 // Define types for our messages and chat data
-interface Message {
+export interface Message {
   userId: string;
   content: string;
   timestamp?: Date;
@@ -18,8 +18,13 @@ interface ChatMessage {
   content: string;
 }
 
-const useChat = (chatId: string) => {
-  const user: AuthUser = JSON.parse(localStorage.getItem("user")!);
+const useChat = (
+  chatId: string,
+  onNewMessage?: (message: Message | null) => void
+) => {
+  const user: AuthUser = JSON.parse(
+    typeof window !== "undefined" ? localStorage.getItem("user") ?? "{}" : "{}"
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -48,6 +53,10 @@ const useChat = (chatId: string) => {
       console.log(data);
 
       setMessages(data.messages);
+
+      if (onNewMessage) {
+        onNewMessage(data.messages[data.messages.length - 1]);
+      }
     });
 
     // Cleanup function

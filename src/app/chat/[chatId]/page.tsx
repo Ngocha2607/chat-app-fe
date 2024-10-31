@@ -1,4 +1,4 @@
-import ChatDetails from "@/pages/chat/DetailChatPage";
+import ChatDetails from "@/page/chat/DetailChatPage";
 import React from "react";
 
 const ChatDetail = ({ params }: { params: { chatId: string } }) => {
