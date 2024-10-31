@@ -3,10 +3,16 @@ import React, { useEffect, useState } from "react";
 import CreateChatForm from "./CreateChatForm";
 import chatService from "@/services/chatService";
 import authService from "@/services/authService";
+import { AuthUser } from "@/models/user";
+import { useRouter } from "next/navigation";
 
 const Homepage = () => {
+  const user: AuthUser = JSON.parse(
+    typeof window !== "undefined" ? localStorage.getItem("user") ?? "{}" : "{}"
+  );
   const [chats, setChats] = useState([]);
-
+  const [listUsers, setListUsers] = useState<AuthUser[]>([]);
+  const router = useRouter();
   const fetchListChats = async () => {
     const res = await chatService.getChats();
     if (res?.status === 200) {
@@ -15,80 +21,62 @@ const Homepage = () => {
       authService.logout();
     }
   };
+
+  const fetchListUsers = async () => {
+    const res = await authService.getListUsers();
+    if (res?.status === 200) {
+      setListUsers(res.data);
+    } else {
+      authService.logout();
+    }
+  };
+  const handleCreateChat = async (selectedUsers: AuthUser) => {
+    const res = await chatService.createChat({
+      participants: [user._id, selectedUsers._id],
+    });
+    if (res) {
+      router.push(`/chat/${res.data._id}`);
+    }
+  };
   useEffect(() => {
     fetchListChats();
+    fetchListUsers();
   }, []);
   return (
-    <div className="grid grid-cols-4">
-      <section className="col-span-1">
-        <CreateChatForm />
-        <div className="max-w-md mx-auto mt-10">
-          <h2 className="text-2xl font-bold mb-5">Chats</h2>
-          {chats.length > 0 ? (
-            <ul>
-              {chats.map((chat: any) => (
-                <a
-                  href={`/chat/${chat._id}`}
-                  key={chat._id}
-                  className="mb-2 p-2 border rounded"
-                >
-                  {chat.participants
-                    .map((participant: any) => participant.username)
-                    .join(", ")}
-                </a>
-              ))}
-            </ul>
-          ) : (
-            <p>No chats available.</p>
-          )}
-        </div>
-      </section>
-      <section className="col-span-3">
-        <div
-          className="py-20 relative flex flex-grow flex-col px-12 justify-end"
-          style={{ backgroundColor: "#e5ddd5" }}
-        >
-          <div className="ml-auto rounded-lg rounded-tr-none my-1 p-2 text-sm bg-green-300 flex flex-col relative speech-bubble-right">
-            <p className="">
-              Do you still have that car from gone in 60 seconds? Can I borrow
-              it please.
-            </p>
-            <p className="text-gray-600 text-xs text-right leading-none">
-              8:00 AM
-            </p>
-          </div>
-          <div className="mr-auto rounded-lg rounded-tl-none my-1 p-2 text-sm bg-white flex flex-col relative speech-bubble-left">
-            <p>Yeah dude for sure</p>
-            <p className="text-gray-600 text-xs text-right leading-none">
-              8:45 AM
-            </p>
-          </div>
-          <div className="ml-auto rounded-lg rounded-tr-none my-1 p-2 text-sm bg-green-300 flex flex-col relative speech-bubble-right">
-            <p className="">Dude WTF was up with that plane you were on!!!?</p>
-            <p className="text-gray-600 text-xs text-right leading-none">
-              8:00 AM
-            </p>
-          </div>
-          <div className="mr-auto rounded-lg rounded-tl-none my-1 p-2 text-sm bg-white flex flex-col relative speech-bubble-left">
-            <p>LOL I Know right </p>
-            <p className="text-gray-600 text-xs text-right leading-none">
-              8:45 AM
-            </p>
-          </div>
-          <div className="ml-auto rounded-lg rounded-tr-none my-1 p-2 text-sm bg-green-300 flex flex-col relative speech-bubble-right">
-            <p className="">Hey man what should we do this weekend?</p>
-            <p className="text-gray-600 text-xs text-right leading-none">
-              8:00 AM
-            </p>
-          </div>
-          <div className="mr-auto rounded-lg rounded-tl-none my-1 p-2 text-sm bg-white flex flex-col relative speech-bubble-left">
-            <p>Steal the declaration of independence?...</p>
-            <p className="text-gray-600 text-xs text-right leading-none">
-              8:45 AM
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <ul role="list" className="divide-y divide-gray-100">
+        {listUsers.map((user, index) => (
+          <li
+            key={index}
+            className="flex justify-between gap-x-6 py-5 cursor-pointer"
+            onClick={() => handleCreateChat(user)}
+          >
+            <div className="flex min-w-0 gap-x-4">
+              <img
+                className="h-12 w-12 flex-none rounded-full bg-gray-50"
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                alt=""
+              />
+              <div className="min-w-0 flex-auto">
+                <p className="text-sm font-semibold leading-6 text-gray-900">
+                  {user.username}
+                </p>
+                <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                  {user.username}
+                </p>
+              </div>
+            </div>
+            <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+              <p className="text-sm leading-6 text-gray-900">
+                Co-Founder / CEO
+              </p>
+              <p className="mt-1 text-xs leading-5 text-gray-500">
+                Last seen <time dateTime="2023-01-23T13:23Z">3h ago</time>
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

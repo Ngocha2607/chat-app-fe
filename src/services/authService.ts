@@ -28,6 +28,13 @@ const authService = {
       return error.response;
     }
   },
+  getListUsers: async () => {
+    try {
+      return await httpInstance.get(Endpoints.AUTH.LIST);
+    } catch (error: any) {
+      return error.response;
+    }
+  },
   update: async (payload: UserProfile) => {
     try {
       return await httpInstance.put(Endpoints.AUTH.UPDATE, payload);

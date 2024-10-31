@@ -4,6 +4,7 @@ export const Endpoints = {
     LOGIN: "/auth/login",
     PROFILE: "/auth/profile",
     UPDATE: "/auth/update",
+    LIST: "/auth/list",
   },
   CHAT: {
     CREATE_CHAT: "chats",
