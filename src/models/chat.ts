@@ -3,6 +3,7 @@ export interface ChatItem {
   participants: Participant[];
   messages: Message[];
   __v: number;
+  lastMessage: Message | null;
 }
 
 export interface Participant {
@@ -11,7 +12,7 @@ export interface Participant {
 }
 
 export interface Message {
-  sender: string;
+  sender: Participant;
   content: string;
   timestamp: string;
   _id: string;
