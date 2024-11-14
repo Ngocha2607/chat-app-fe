@@ -1,14 +1,18 @@
 "use client";
-import useChat, { Message } from "@/hooks/useChat";
+import useChat, { Member, Message } from "@/hooks/useChat";
 import { useEffect, useState } from "react";
 import Notification from "./Notification";
+import { AuthUser } from "@/models/user";
 
 type Props = {
   chatId: string;
 };
 export default function ChatWindow({ chatId }: Props) {
+  const user: AuthUser = JSON.parse(
+    typeof window !== "undefined" ? localStorage.getItem("user") ?? "{}" : "{}"
+  );
   const [notification, setNotification] = useState<Message | null>(null);
-  const { messages, message, setMessage, sendMessage } = useChat(
+  const { members, messages, message, setMessage, sendMessage } = useChat(
     chatId,
     setNotification
   );
@@ -18,37 +22,79 @@ export default function ChatWindow({ chatId }: Props) {
     sendMessage(message);
   };
 
+  console.log(chatId);
+
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-5">Chat</h2>
-      <div>
-        <ul className="mb-5">
-          {messages.map((msg: any, index) => (
-            <li key={index} className="mb-2 p-2 border rounded">
-              <strong>{msg.sender.username}</strong>: {msg.content} <br />
-              <span className="text-gray-500 text-sm">
-                {new Date(msg.timestamp ?? "").toLocaleString()}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <form onSubmit={handleSendMessage}>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full px-3 py-2 border rounded mb-2"
-            placeholder="Type your message..."
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Send
-          </button>
-        </form>
-      </div>
-      <Notification message={notification} />
+    <div className="mx-auto">
+      <section className="">
+        <div className="h-screen flex flex-col">
+          <div className="bg-blue-500 text-white py-2">
+            {
+              members.find((member: Member) => member._id !== user._id)
+                ?.username
+            }
+          </div>
+          <div className="bg-gray-200 flex-1 overflow-y-auto">
+            {messages.map((msg: any, index) => {
+              return (
+                <div key={index} className="px-4 py-2">
+                  <div className="text-center">
+                    {new Date(msg.timestamp ?? "").toLocaleString()}
+                  </div>
+                  {msg.sender._id === user._id ? (
+                    <div className="flex items-center justify-end">
+                      <div className="bg-blue-500 text-white rounded-lg p-2 shadow mr-2 max-w-sm">
+                        {msg.content}
+                      </div>
+                      <img
+                        className="w-8 h-8 rounded-full"
+                        src="https://picsum.photos/50/50"
+                        alt="User Avatar"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center mb-2">
+                        <img
+                          className="w-8 h-8 rounded-full mr-2"
+                          src="https://picsum.photos/50/50"
+                          alt="User Avatar"
+                        />
+                        <div className="font-medium">{msg.sender.username}</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-2 shadow mb-2 max-w-sm">
+                        {msg.content}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <form onSubmit={handleSendMessage}>
+            <div className="bg-gray-100 px-4 py-2">
+              <div className="flex items-center">
+                <input
+                  className="w-full border rounded-full py-2 px-4 mr-2"
+                  type="text"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type your message..."
+                />
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+      {notification && notification.sender._id !== user._id && (
+        <Notification message={notification} />
+      )}
     </div>
   );
 }

@@ -6,10 +6,15 @@ import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 // Define types for our messages and chat data
+export interface Member {
+  _id: string;
+  username: string;
+}
 export interface Message {
   userId: string;
   content: string;
   timestamp?: Date;
+  sender: Member;
 }
 
 interface ChatMessage {
@@ -25,6 +30,7 @@ const useChat = (
   const user: AuthUser = JSON.parse(
     typeof window !== "undefined" ? localStorage.getItem("user") ?? "{}" : "{}"
   );
+  const [members, setMembers] = useState<Member[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -33,6 +39,7 @@ const useChat = (
     const response = await chatService.getDetailChats(chatId);
     if (response?.status === 200) {
       setMessages(response.data.messages);
+      setMembers(response.data.participants);
     }
   };
 
@@ -78,6 +85,7 @@ const useChat = (
   };
 
   return {
+    members,
     messages,
     message,
     setMessage,
